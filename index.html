@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CRUD using Real API part 1</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+        <style>
+            .s_tbdr{
+                border: 1px dashed red;
+            }
+        </style>
+        <script>
+
+        </script>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4 s_tbdr">
+                <form onsubmit="sendMyData(this);return false;">
+                    <div class="mb-3">
+                      <label for="fname" class="form-label">First Name</label>
+                      <input autofocus type="text" class="form-control" id="fname" aria-describedby="emailHelp">
+                    </div>
+                    <div class="mb-3">
+                    <label for="lname" class="form-label">Last Name</label>
+                      <input type="text" class="form-control" id="lname" aria-describedby="emailHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="email" class="form-label">Email</label>
+                      <input type="email" class="form-control" id="email">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+
+                </div>
+              <div class="col-8 s_tbdr">
+                <table class="table mytable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">First</th>
+                        <th scope="col">Last</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <td colspan="5">
+                            <div class="d-flex justify-content-center">
+                              <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+            </div>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <script>
+            //I can write the JS code before the closing of body tag
+            //Promise Chain
+
+            //Promise Object
+            //PO.then().then().catch();
+
+            /*
+            fetch('http://example.com/movies.json')
+              .then((response) => response.json())
+              .then((data) => console.log(data));
+            */
+            var x = document.querySelector('table.mytable > tbody');
+            fetch('https://reqres.in/api/users?page=2')
+            .then((response)=>{ //response is formal argument
+                //Every function something
+                //To make data json readable
+                return response.json();
+            })
+            .then((data)=>{
+                console.log(data.data);
+                let tr = ``;                
+                for (variable of data.data){
+                    //code block to be executed
+                    tr += `<tr>
+                                <th scope="row">${variable.id}</th>
+                                <td>${variable.first_name}</td>
+                                 <td>${variable.last_name}</td>
+                                <td>${variable.email}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-success">View</button>
+                                    <button class="btn btn-sm btn-primary">Edit</button>
+                                    <button class="btn btn-sm btn-danger">Delete</button>
+                                </td>
+                            </tr>`;
+                    console.log(variable.first_name);
+                }
+                x.innerHTML = tr; //overwrite
+            })
+            .catch(function(err){
+                console.log(err);
+            });
+        </script> 
+        <script>
+            let bdy = document.querySelector('body');
+
+            let sendMyData = (elem) =>{  //Fat Arrow
+              let fn = elem.querySelector('input#fname').value;
+              let ln = elem.querySelector('input#lname').value;
+              let eml = elem.querySelector('input#email').value
+
+              if(fn === '' || ln === '' || eml === ''){
+                swal("Please fill the fields!", "You clicked the button!", "error");
+                  //True
+              }else{
+                  //False
+              }
+
+              bdy.innerHTML += `<div class="d-flex justify-content-center position-fixed top-50 start-50 roundspinner">
+                                    <div class="spinner-grow text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>`;  
+              console.log(elem);
+              console.log(elem.querySelector('input#fname').value);
+              console.log(elem.querySelector('input#lname').value);
+              console.log(elem.querySelector('input#email').value);
+          
+              let jsondata = {
+                "first_name":fn,
+                "last_name":ln,
+                "email":eml
+              };
+              console.log(typeof jsondata); // object--->string
+              console.log(typeof JSON.stringify(jsondata));
+              console.log(typeof JSON.parse(JSON.stringify(jsondata)));
+
+
+              //alert("Hello");
+
+              //Now I have to call the api using Fetch API technique
+
+              //Promise Chain
+
+              //fetch('',{}).then().then().catch();
+
+              fetch('https://reqres.in/api/users',{
+                method:"POST",
+                headers:{
+                  'Content-Type':'application/json'
+                },
+                body:JSON.stringify(jsondata)
+              })
+              .then((res)=>{return res.json();})
+              .then((data)=>{
+                console.log(data);
+               //alert("Data Saved Successfully");
+               swal("Data Saved Successfully", "You clicked the button!", "success");
+               document.querySelector('.roundspinner').remove();
+              })
+              .catch((error)=>{
+                console.log(error);
+              });
+
+                    
+            }
+        </script>
+    </body>
+</html>
